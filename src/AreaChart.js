@@ -3,9 +3,14 @@ import React, {
   PropTypes,
 } from 'react';
 
-import * as graphUtils from './chart-util';
+import ReactART from 'react-art';
+const {
+  Group,
+  Shape,
+  Surface,
+} = ReactART;
 
-const PaddingSize = 20;
+import * as graphUtils from './chart-util';
 
 export default class AreaChart extends Component {
   static propTypes = {
@@ -17,70 +22,37 @@ export default class AreaChart extends Component {
   }
 
   static defaultProps = {
-    width: Math.round(window.innerWidth * 0.9),
-    height: Math.round(window.innerHeight * 0.5),
+    width: 300,
+    height: 300,
   };
 
-  state = {
-    graphWidth: 0,
-    graphHeight: 0,
-    linePath: '',
-  };
-
-  componentWillMount() {
-    this.computeNextState(this.props);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.computeNextState(nextProps);
-  }
-
-  computeNextState(nextProps) {
+  render() {
     const {
       data,
       width,
       height,
       xAccessor,
       yAccessor,
-    } = nextProps;
-
-    const graphWidth = width - PaddingSize * 2;
-    const graphHeight = height - PaddingSize * 2;
+    } = this.props;
 
     const lineGraph = graphUtils.createLineGraph({
       data,
+      width,
+      height,
       xAccessor,
       yAccessor,
-      width: graphWidth,
-      height: graphHeight,
     });
-    console.log(data);
-    console.log(lineGraph);
-
-    this.setState({
-      graphWidth,
-      graphHeight,
-      linePath: lineGraph.path,
-    });
-  }
-
-  render() {
-    const {
-      graphWidth,
-      graphHeight,
-      linePath,
-    } = this.state;
 
     return (
-      <svg width={graphWidth} height={graphHeight}>
-        <g x={0} y={0}>
-          <path
-            d={linePath}
+      <Surface width={width} height={height}>
+        <Group x={0} y={0}>
+          <Shape
+            d={lineGraph.path}
             fill={ "rgba(0, 0, 0, .3)" }
             strokeWidth={1}
           />
-        </g>
-      </svg>
+        </Group>
+      </Surface>
     );
   }
 }
