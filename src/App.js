@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 
 import moment from 'moment';
-import AreaChart from './AreaChart';
+import AreaChart from '../native/shared/AreaChart';
 
 class App extends Component {
 
