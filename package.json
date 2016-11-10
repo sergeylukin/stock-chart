@@ -1,6 +1,7 @@
 {
   "name": "stock-chart",
   "version": "0.1.0",
+  "repository": "https://github.com/sergeylukin/stock-chart.git",
   "private": true,
   "devDependencies": {
     "autoprefixer": "6.5.1",
