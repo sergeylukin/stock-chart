@@ -34,29 +34,41 @@ function createScaleY(minY, maxY, height) {
 }
 
 /**
- * Creates a line graph SVG path that we can then use to render in our
+ * Creates a area graph SVG path that we can then use to render in our
  * React Native application with ART.
  * @param {Array.<Object>} options.data Array of data we'll use to create
  *   our graphs from.
  * @param {function} xAccessor Function to access the x value from our data.
  * @param {function} yAccessor Function to access the y value from our data.
  * @param {number} width Width our graph will render to.
- * @param {number} height Height our graph will render to.
- * @return {Object} Object with data needed to render.
+ * @param {number} distance between two points
+ * @param {number} width of the area
+ * @param {number} height of the area
+ * @return {string} SVG path
  */
-export function createLineGraph({
+export function createArea({
   data,
   xAccessor,
   yAccessor,
   width,
-  height,
+  distanceBetweenTwoPoints,
+  maxAllowedAreaWidth,
+  maxAllowedAreaHeight,
 }) {
   const lastDatum = data[data.length - 1];
+
+  let totalWidth =
+      data.length
+    * distanceBetweenTwoPoints
+    - distanceBetweenTwoPoints;
+  if (totalWidth > maxAllowedAreaWidth) {
+    totalWidth = maxAllowedAreaWidth;
+  }
 
   const scaleX = createScaleX(
     data[0].time,
     lastDatum.time,
-    width / 2
+    totalWidth,
   );
 
   // Collect all y values.
@@ -66,14 +78,131 @@ export function createLineGraph({
   }, []);
   // Get the min and max y value.
   const extentY = d3Array.extent(allYValues);
-  const scaleY = createScaleY(extentY[0], extentY[1], height);
+  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight);
 
-  const lineShape = d3.shape.area()
+  const areaShape = d3.shape.area()
     .x((d) => scaleX(xAccessor(d)))
-    .y0(height)
+    .y0(maxAllowedAreaHeight)
     .y1((d) => scaleY(yAccessor(d)));
 
+  return areaShape(data);
+}
+
+/**
+ * Creates a line graph SVG path that we can then use to render in our
+ * React Native application with ART.
+ * @param {Array.<Object>} options.data Array of data we'll use to create
+ *   our graphs from.
+ * @param {function} xAccessor Function to access the x value from our data.
+ * @param {function} yAccessor Function to access the y value from our data.
+ * @param {number} width Width our graph will render to.
+ * @param {number} distance between two points
+ * @param {number} width of the area
+ * @param {number} height of the area
+ * @return {string} SVG path
+ */
+export function createLine({
+  data,
+  xAccessor,
+  yAccessor,
+  width,
+  distanceBetweenTwoPoints,
+  maxAllowedAreaWidth,
+  maxAllowedAreaHeight,
+}) {
+  const lastDatum = data[data.length - 1];
+
+  let totalWidth =
+      data.length
+    * distanceBetweenTwoPoints
+    - distanceBetweenTwoPoints;
+  if (totalWidth > maxAllowedAreaWidth) {
+    totalWidth = maxAllowedAreaWidth;
+  }
+
+  const scaleX = createScaleX(
+    data[0].time,
+    lastDatum.time,
+    totalWidth,
+  );
+
+  // Collect all y values.
+  const allYValues = data.reduce((all, datum) => {
+    all.push(yAccessor(datum));
+    return all;
+  }, []);
+  // Get the min and max y value.
+  const extentY = d3Array.extent(allYValues);
+  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight);
+
+  const areaShape = d3.shape.line()
+    .x((d) => scaleX(xAccessor(d)))
+    .y((d) => scaleY(yAccessor(d)));
+
+  return areaShape(data);
+}
+
+/**
+ * Get coordinates of last data point
+ * @param {Array.<Object>} options.data Array of data we'll use to create
+ *   our graphs from.
+ * @param {function} xAccessor Function to access the x value from our data.
+ * @param {function} yAccessor Function to access the y value from our data.
+ * @param {number} width Width our graph will render to.
+ * @param {number} distance between two points
+ * @param {number} width of the area
+ * @param {number} height of the area
+ * @return {Object} Object with x and y coordinates
+ */
+export function getCoordinatesOfLastItem({
+  data,
+  xAccessor,
+  yAccessor,
+  width,
+  distanceBetweenTwoPoints,
+  maxAllowedAreaWidth,
+  maxAllowedAreaHeight,
+}) {
+  const lastDatum = data[data.length - 1];
+
+  let totalWidth =
+      data.length
+    * distanceBetweenTwoPoints
+    - distanceBetweenTwoPoints;
+  if (totalWidth > maxAllowedAreaWidth) {
+    totalWidth = maxAllowedAreaWidth;
+  }
+
+  const scaleX = createScaleX(
+    data[0].time,
+    lastDatum.time,
+    totalWidth,
+  );
+
+  // Collect all y values.
+  const allYValues = data.reduce((all, datum) => {
+    all.push(yAccessor(datum));
+    return all;
+  }, []);
+  // Get the min and max y value.
+  const extentY = d3Array.extent(allYValues);
+  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight);
+
   return {
-    path: lineShape(data),
+    x: scaleX(xAccessor(lastDatum)),
+    y: scaleY(yAccessor(lastDatum)),
   };
+}
+
+/**
+ * Creates a circle SVG path that we can then use to render in our
+ * React Native application with ART.
+ * @param {number} width Width our graph will render to.
+ * @return {String} String with SVG path
+ */
+export function createCircle({
+  size
+} = { size: 30 }) {
+  return d3.shape.symbol()
+    .size(size)();
 }

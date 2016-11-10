@@ -5,45 +5,101 @@ import moment from 'moment';
 import AreaChart from './AreaChart';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
 
-    this.state = {
-      // Our array of data we're graphing.
-      data: [
-        {time: +moment("2016-11-01 05:25:00").format("X"), value: 83.24},
-        {time: +moment("2016-11-01 05:25:01").format("X"), value: 85.35},
-        {time: +moment("2016-11-01 05:25:02").format("X"), value: 98.84},
-        {time: +moment("2016-11-01 05:25:03").format("X"), value: 79.92},
-        {time: +moment("2016-11-01 05:25:04").format("X"), value: 83.80},
-        {time: +moment("2016-11-01 05:25:05").format("X"), value: 88.47},
-        {time: +moment("2016-11-01 05:25:06").format("X"), value: 94.47},
-      ],
-    };
+  state = {
+    // Our Queue of data we're graphing.
+    // Why Queue? Because when we have
+    // more items than what we can display
+    // on the screen - we remove items
+    // from the start of the array, i.e. FIFO
+    dataQueue: [],
+    chartWidth: 0,
+    chartHeight: 0,
+    distanceBetweenTwoPointsInChart: 0,
+    maxAllowedAreaWidth: 0,
+    maxAllowedAreaHeight: 0,
   }
 
-  componentDidMount() {
+  componentWillMount() {
+    const chartWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    let chartHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+    this.setState({
+      chartWidth,
+      chartHeight,
+      distanceBetweenTwoPointsInChart: 5,
+      maxAllowedAreaWidth: chartWidth / 2,
+      maxAllowedAreaHeight: chartHeight > 300 ? chartHeight / 2 : chartHeight * 0.8,
+    });
+
     let render = () => {
-      let data = this.state.data;
-      data.push({
-        time: +moment(data[data.length - 1].time).add(1, 's'),
-        value: (Math.floor(Math.random() * (100 - 80 + 1)) + 80),
+      let {
+        dataQueue,
+        distanceBetweenTwoPointsInChart,
+        maxAllowedAreaWidth,
+      } =  this.state;
+
+      let lastTimestamp;
+      let lastYValue;
+
+      if (dataQueue.length === 0) {
+        lastTimestamp = +moment("2016-11-01 05:25:00").format("X");
+        lastYValue = 0;
+      } else {
+        lastTimestamp = dataQueue[dataQueue.length - 1].time;
+        lastYValue = dataQueue[dataQueue.length - 1].value;
+      }
+
+      let value =
+          lastYValue
+        + (Math.floor(Math.random() * (2 - 1 + 1)) + 1)
+        * (Math.random() < 0.5 ? -1 : 1);
+      if (value < 10) {
+        value = 10;
+      }
+
+      dataQueue.push({
+        time: +moment(lastTimestamp).add(1, 's'),
+        value,
       });
+
+      // Shift the queue if we have more items we can show
+      let currentAreaWidth =
+          dataQueue.length
+        * distanceBetweenTwoPointsInChart
+        - distanceBetweenTwoPointsInChart;
+      if (currentAreaWidth > maxAllowedAreaWidth) {
+        dataQueue.shift();
+      }
+
       this.setState({
-        data
+        dataQueue
       });
+
       setTimeout(() => {
         window.requestAnimationFrame(render);
-      }, 1000);
+      }, 80);
     }
     window.requestAnimationFrame(render);
   }
 
   render() {
+    const {
+      dataQueue,
+      chartWidth,
+      chartHeight,
+      distanceBetweenTwoPointsInChart,
+      maxAllowedAreaWidth,
+      maxAllowedAreaHeight,
+    } = this.state;
+
     const graphProps = {
-      data: this.state.data,
-      width: Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-      height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+      data: dataQueue,
+      width: chartWidth,
+      height: chartHeight,
+      distanceBetweenTwoPoints: distanceBetweenTwoPointsInChart,
+      maxAllowedAreaWidth,
+      maxAllowedAreaHeight,
       xAccessor: (d) => d.time,
       yAccessor: (d) => d.value,
     };
