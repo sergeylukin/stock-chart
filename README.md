@@ -1,6 +1,8 @@
 # Stock Chart multi-platform app
 
-Live web demo: http://sergeylukin.com/stock-chart/
+Live web demo (fully responsive, try resizing / changing orientation):
+
+http://sergeylukin.com/stock-chart/ (170Kb all together)
 
 This project was built for one of my interviews.
 
