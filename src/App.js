@@ -21,16 +21,7 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const chartWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    let chartHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-
-    this.setState({
-      chartWidth,
-      chartHeight,
-      distanceBetweenTwoPointsInChart: 5,
-      maxAllowedAreaWidth: chartWidth / 2,
-      maxAllowedAreaHeight: chartHeight > 300 ? chartHeight / 2 : chartHeight * 0.8,
-    });
+    this.updateViewportDimensions();
 
     let render = () => {
       let {
@@ -81,6 +72,25 @@ class App extends Component {
       }, 80);
     }
     window.requestAnimationFrame(render);
+  }
+
+  updateViewportDimensions() {
+    const chartWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    let chartHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+    this.setState({
+      chartWidth,
+      chartHeight,
+      distanceBetweenTwoPointsInChart: 5,
+      maxAllowedAreaWidth: chartWidth / 2,
+      maxAllowedAreaHeight: chartHeight > 300 ? chartHeight / 2 : chartHeight * 0.8,
+    });
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', () => {
+      this.updateViewportDimensions();
+    });
   }
 
   render() {
