@@ -68,13 +68,13 @@ easy to understand and manipulate syntax similar to SVG
 but even nicer one and performs transformation to
 any of the supported formats.
 Even better there is
-[ReacJS AND binding](https://github.com/reactjs/react-art)
+[ReactJS ART binding](https://github.com/reactjs/react-art)
 and also a [React Native
 binding](https://github.com/facebook/react-native/tree/master/Libraries/ART).
 
 Oh, boy, what a paradise, so we can feed D3.js with data and
 pass it to ART to render on all platforms? Crazy, but it's true,
-it really works and works perfect.
+it really works and works great.
 
 Here is a snapshop showing me running this project on both
 web and iOS from same code (well, something I didn't move to
