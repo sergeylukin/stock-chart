@@ -88,9 +88,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('resize', () => {
-      this.updateViewportDimensions();
-    });
+    window.addEventListener('resize',
+                            this.updateViewportDimensions.bind(this));
+    window.addEventListener('orientationchange',
+                            this.updateViewportDimensions.bind(this));
   }
 
   render() {
