@@ -13,6 +13,20 @@ const {
 import * as graphUtils from './chart-util';
 
 export default class AreaChart extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { isMouseInside: false};
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
+  }
+
+  handleMouseEnter() {
+    this.setState({ isMouseInside: true});
+  }
+  handleMouseLeave() {
+    this.setState({ isMouseInside: false});
+  }
+
   static propTypes = {
     data: PropTypes.array.isRequired,
     width: PropTypes.number.isRequired,
@@ -87,20 +101,24 @@ export default class AreaChart extends Component {
 
     const yOffset = height - maxAllowedAreaHeight;
 
+    const fillColor = this.state.isMouseInside
+      ? "rgba(0, 0, 0, .5)"
+      : "rgba(34, 92, 127, .8)";
+
     return (
       <Surface width={ width } height={ height } className={ className }>
         <Group x={ 0 } y={ yOffset }>
-          <Group>
-            <Shape
-              d={ areaPath }
-              fill={ "rgba(34, 92, 127, .8)" }
-            />
-            <Shape
-              d={ linePath }
-              stroke={ "#fff" }
-              strokeWidth={ 2 }
-            />
-          </Group>
+          <Shape
+            d={ areaPath }
+            fill={ fillColor }
+            onMouseOver={this.handleMouseEnter}
+            onMouseOut={this.handleMouseLeave}
+          />
+          <Shape
+            d={ linePath }
+            stroke={ "#fff" }
+            strokeWidth={ 2 }
+          />
           <Group x={ circleX } y={ circleY }>
             <Shape d={ circlePath } fill={ "orange" } />
           </Group>
