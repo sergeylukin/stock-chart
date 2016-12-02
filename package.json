@@ -19,6 +19,7 @@
     "detect-port": "1.0.1",
     "dotenv": "2.0.0",
     "eslint": "3.8.1",
+    "eslint-config-i-am-meticulous": "^5.0.2",
     "eslint-config-react-app": "^0.3.0",
     "eslint-loader": "1.6.0",
     "eslint-plugin-flowtype": "2.21.0",
@@ -89,6 +90,13 @@
     ]
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "eslint-config-i-am-meticulous/react",
+    "plugins": [
+      "flowtype"
+    ],
+    "rules": {
+      "flowtype/define-flow-type": 2,
+      "flowtype/use-flow-type": 2
+    }
   }
 }
