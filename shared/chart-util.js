@@ -1,3 +1,5 @@
+// @flow
+
 /* eslint-disable import/no-namespace */
 import * as scale from "d3-scale"
 import * as shape from "d3-shape"
@@ -9,45 +11,22 @@ const d3 = {
   shape,
 }
 
-/**
- * Create an x-scale.
- * @param {number} start Start time in seconds.
- * @param {number} end End time in seconds.
- * @param {number} width Width to create the scale with.
- * @return {Function} D3 scale instance.
- */
-function createScaleX(start, end, width) {
-  return d3.scale.scaleTime()
-    .domain([ start, end ])
-    .range([ 0, width ])
-}
-
-/**
- * Create a y-scale.
- * @param {number} minY Minimum y value to use in our domain.
- * @param {number} maxY Maximum y value to use in our domain.
- * @param {number} height Height for our scale's range.
- * @return {Function} D3 scale instance.
- */
-function createScaleY(minY, maxY, height) {
-  return d3.scale.scaleLinear()
-    .domain([ minY, maxY ]).nice()
-    // We invert our range so it outputs using the axis that React uses.
-    .range([ height, 0 ])
+// Declare types of SVG funcs arguments
+type SvgPathFuncArgsType = {
+  data: {
+    time: number,
+    value: number
+  }[],
+  xAccessor: Function,
+  yAccessor: Function,
+  distanceBetweenTwoPoints: number,
+  maxAllowedAreaWidth: number,
+  maxAllowedAreaHeight: number,
 }
 
 /**
  * Creates a area graph SVG path that we can then use to render in our
  * React Native application with ART.
- * @param {Array.<Object>} options.data Array of data we'll use to create
- *   our graphs from.
- * @param {function} xAccessor Function to access the x value from our data.
- * @param {function} yAccessor Function to access the y value from our data.
- * @param {number} width Width our graph will render to.
- * @param {number} distance between two points
- * @param {number} width of the area
- * @param {number} height of the area
- * @return {string} SVG path
  */
 export function createArea({
   data,
@@ -56,7 +35,7 @@ export function createArea({
   distanceBetweenTwoPoints,
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
-}) {
+}:SvgPathFuncArgsType): string {
   const lastDatum = data[data.length - 1]
 
   let totalWidth =
@@ -93,15 +72,6 @@ export function createArea({
 /**
  * Creates a line graph SVG path that we can then use to render in our
  * React Native application with ART.
- * @param {Array.<Object>} options.data Array of data we'll use to create
- *   our graphs from.
- * @param {function} xAccessor Function to access the x value from our data.
- * @param {function} yAccessor Function to access the y value from our data.
- * @param {number} width Width our graph will render to.
- * @param {number} distance between two points
- * @param {number} width of the area
- * @param {number} height of the area
- * @return {string} SVG path
  */
 export function createLine({
   data,
@@ -110,7 +80,7 @@ export function createLine({
   distanceBetweenTwoPoints,
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
-}) {
+}:SvgPathFuncArgsType): string {
   const lastDatum = data[data.length - 1]
 
   let totalWidth =
@@ -145,15 +115,6 @@ export function createLine({
 
 /**
  * Get coordinates of last data point
- * @param {Array.<Object>} options.data Array of data we'll use to create
- *   our graphs from.
- * @param {function} xAccessor Function to access the x value from our data.
- * @param {function} yAccessor Function to access the y value from our data.
- * @param {number} width Width our graph will render to.
- * @param {number} distance between two points
- * @param {number} width of the area
- * @param {number} height of the area
- * @return {Object} Object with x and y coordinates
  */
 export function getCoordinatesOfLastItem({
   data,
@@ -162,7 +123,7 @@ export function getCoordinatesOfLastItem({
   distanceBetweenTwoPoints,
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
-}) {
+}:SvgPathFuncArgsType): { x: number, y: number } {
   const lastDatum = data[data.length - 1]
 
   let totalWidth =
@@ -197,12 +158,32 @@ export function getCoordinatesOfLastItem({
 /**
  * Creates a circle SVG path that we can then use to render in our
  * React Native application with ART.
- * @param {number} width Width our graph will render to.
- * @return {String} String with SVG path
  */
+type CreateCircleArgsType = {
+  size: number,
+}
 export function createCircle({
   size,
-} = { size: 30 }) {
+}:CreateCircleArgsType = { size: 30 }): string {
   return d3.shape.symbol()
     .size(size)()
+}
+
+/**
+ * Create an x-scale.
+ */
+function createScaleX(start, end, width) {
+  return d3.scale.scaleTime()
+    .domain([ start, end ])
+    .range([ 0, width ])
+}
+
+/**
+ * Create a y-scale.
+ */
+function createScaleY(minY, maxY, height) {
+  return d3.scale.scaleLinear()
+    .domain([ minY, maxY ]).nice()
+    // We invert our range so it outputs using the axis that React uses.
+    .range([ height, 0 ])
 }
