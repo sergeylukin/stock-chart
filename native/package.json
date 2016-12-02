@@ -18,10 +18,33 @@
     "preset": "jest-react-native"
   },
   "devDependencies": {
+    "babel-core": "https://registry.npmjs.org/babel-core/-/babel-core-6.18.2.tgz",
+    "babel-eslint": "^7.1.1",
     "babel-jest": "17.0.0",
+    "babel-loader": "^6.2.8",
+    "babel-preset-react-app": "^1.0.0",
     "babel-preset-react-native": "1.9.0",
+    "eslint": "^3.11.1",
+    "eslint-config-i-am-meticulous": "^5.0.2",
+    "eslint-plugin-flowtype": "^2.29.1",
+    "eslint-plugin-react": "^6.7.1",
     "jest": "17.0.0",
     "jest-react-native": "17.0.0",
     "react-test-renderer": "15.3.2"
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "eslint-config-i-am-meticulous/react",
+    "plugins": [
+      "flowtype"
+    ],
+    "rules": {
+      "flowtype/define-flow-type": 2,
+      "flowtype/use-flow-type": 2
+    }
   }
 }

@@ -1,10 +1,13 @@
-import * as scale from 'd3-scale';
-import * as shape from 'd3-shape';
-import * as d3Array from 'd3-array';
+/* eslint-disable import/no-namespace */
+import * as scale from "d3-scale"
+import * as shape from "d3-shape"
+import * as d3Array from "d3-array"
+/* eslint-enable import/no-namespace */
+
 const d3 = {
   scale,
   shape,
-};
+}
 
 /**
  * Create an x-scale.
@@ -15,8 +18,8 @@ const d3 = {
  */
 function createScaleX(start, end, width) {
   return d3.scale.scaleTime()
-    .domain([start, end])
-    .range([0, width]);
+    .domain([ start, end ])
+    .range([ 0, width ])
 }
 
 /**
@@ -28,9 +31,9 @@ function createScaleX(start, end, width) {
  */
 function createScaleY(minY, maxY, height) {
   return d3.scale.scaleLinear()
-    .domain([minY, maxY]).nice()
+    .domain([ minY, maxY ]).nice()
     // We invert our range so it outputs using the axis that React uses.
-    .range([height, 0]);
+    .range([ height, 0 ])
 }
 
 /**
@@ -50,42 +53,41 @@ export function createArea({
   data,
   xAccessor,
   yAccessor,
-  width,
   distanceBetweenTwoPoints,
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }) {
-  const lastDatum = data[data.length - 1];
+  const lastDatum = data[data.length - 1]
 
   let totalWidth =
       data.length
     * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints;
+    - distanceBetweenTwoPoints
   if (totalWidth > maxAllowedAreaWidth) {
-    totalWidth = maxAllowedAreaWidth;
+    totalWidth = maxAllowedAreaWidth
   }
 
   const scaleX = createScaleX(
     data[0].time,
     lastDatum.time,
     totalWidth,
-  );
+  )
 
   // Collect all y values.
   const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum));
-    return all;
-  }, []);
+    all.push(yAccessor(datum))
+    return all
+  }, [])
   // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues);
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight);
+  const extentY = d3Array.extent(allYValues)
+  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
 
   const areaShape = d3.shape.area()
     .x((d) => scaleX(xAccessor(d)))
     .y0(maxAllowedAreaHeight)
-    .y1((d) => scaleY(yAccessor(d)));
+    .y1((d) => scaleY(yAccessor(d)))
 
-  return areaShape(data);
+  return areaShape(data)
 }
 
 /**
@@ -105,41 +107,40 @@ export function createLine({
   data,
   xAccessor,
   yAccessor,
-  width,
   distanceBetweenTwoPoints,
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }) {
-  const lastDatum = data[data.length - 1];
+  const lastDatum = data[data.length - 1]
 
   let totalWidth =
       data.length
     * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints;
+    - distanceBetweenTwoPoints
   if (totalWidth > maxAllowedAreaWidth) {
-    totalWidth = maxAllowedAreaWidth;
+    totalWidth = maxAllowedAreaWidth
   }
 
   const scaleX = createScaleX(
     data[0].time,
     lastDatum.time,
     totalWidth,
-  );
+  )
 
   // Collect all y values.
   const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum));
-    return all;
-  }, []);
+    all.push(yAccessor(datum))
+    return all
+  }, [])
   // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues);
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight);
+  const extentY = d3Array.extent(allYValues)
+  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
 
   const areaShape = d3.shape.line()
     .x((d) => scaleX(xAccessor(d)))
-    .y((d) => scaleY(yAccessor(d)));
+    .y((d) => scaleY(yAccessor(d)))
 
-  return areaShape(data);
+  return areaShape(data)
 }
 
 /**
@@ -158,40 +159,39 @@ export function getCoordinatesOfLastItem({
   data,
   xAccessor,
   yAccessor,
-  width,
   distanceBetweenTwoPoints,
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }) {
-  const lastDatum = data[data.length - 1];
+  const lastDatum = data[data.length - 1]
 
   let totalWidth =
       data.length
     * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints;
+    - distanceBetweenTwoPoints
   if (totalWidth > maxAllowedAreaWidth) {
-    totalWidth = maxAllowedAreaWidth;
+    totalWidth = maxAllowedAreaWidth
   }
 
   const scaleX = createScaleX(
     data[0].time,
     lastDatum.time,
     totalWidth,
-  );
+  )
 
   // Collect all y values.
   const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum));
-    return all;
-  }, []);
+    all.push(yAccessor(datum))
+    return all
+  }, [])
   // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues);
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight);
+  const extentY = d3Array.extent(allYValues)
+  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
 
   return {
     x: scaleX(xAccessor(lastDatum)),
     y: scaleY(yAccessor(lastDatum)),
-  };
+  }
 }
 
 /**
@@ -201,8 +201,8 @@ export function getCoordinatesOfLastItem({
  * @return {String} String with SVG path
  */
 export function createCircle({
-  size
+  size,
 } = { size: 30 }) {
   return d3.shape.symbol()
-    .size(size)();
+    .size(size)()
 }
