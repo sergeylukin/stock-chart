@@ -28,13 +28,14 @@
     "eslint-config-i-am-meticulous": "^5.0.2",
     "eslint-plugin-flowtype": "^2.29.1",
     "eslint-plugin-react": "^6.7.1",
+    "flow-bin": "^0.36.0",
     "jest": "17.0.0",
     "jest-react-native": "17.0.0",
     "react-test-renderer": "15.3.2"
   },
   "babel": {
     "presets": [
-      "react-app"
+      "react-native"
     ]
   },
   "eslintConfig": {
