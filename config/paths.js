@@ -31,7 +31,7 @@ module.exports = {
   appHtml: resolveApp('public/index.html'),
   appIndexJs: resolveApp('src/index.js'),
   appPackageJson: resolveApp('package.json'),
-  appSrc: [resolveApp('src'), resolveApp('native/shared')],
+  appSrc: [resolveApp('src'), resolveApp('shared'), resolveApp('native/shared')],
   testsSetup: resolveApp('src/setupTests.js'),
   appNodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),

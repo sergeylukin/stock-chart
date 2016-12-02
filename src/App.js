@@ -1,8 +1,13 @@
-import React, { Component } from 'react';
-import './App.css';
+// @flow
 
-import moment from 'moment';
-import AreaChart from '../native/shared/AreaChart';
+import React, { Component } from "react"
+import moment from "moment"
+
+import "./App.css"
+import AreaChart from "../shared/AreaChart"
+
+const str: string = "hello world!"
+console.log(str)
 
 class App extends Component {
 
@@ -21,77 +26,84 @@ class App extends Component {
   }
 
   componentWillMount() {
-    this.updateViewportDimensions();
+    this.updateViewportDimensions()
 
-    let render = () => {
-      let {
+    const render = () => {
+      const {
         dataQueue,
         distanceBetweenTwoPointsInChart,
         maxAllowedAreaWidth,
-      } =  this.state;
+      } =  this.state
 
-      let lastTimestamp;
-      let lastYValue;
+      let lastTimestamp
+      let lastYValue
 
       if (dataQueue.length === 0) {
-        lastTimestamp = +moment("2016-11-01 05:25:00").format("X");
-        lastYValue = 0;
-      } else {
-        lastTimestamp = dataQueue[dataQueue.length - 1].time;
-        lastYValue = dataQueue[dataQueue.length - 1].value;
+        lastTimestamp = +moment("2016-11-01 05:25:00").format("X")
+        lastYValue = 0
+      }
+      else {
+        lastTimestamp = dataQueue[dataQueue.length - 1].time
+        lastYValue = dataQueue[dataQueue.length - 1].value
       }
 
       let value =
           lastYValue
         + (Math.floor(Math.random() * (2 - 1 + 1)) + 1)
-        * (Math.random() < 0.5 ? -1 : 1);
+        * (Math.random() < 0.5 ? -1 : 1)
       if (value < 10) {
-        value = 10;
+        value = 10
       }
 
       dataQueue.push({
-        time: +moment(lastTimestamp).add(1, 's'),
+        time: +moment(lastTimestamp).add(1, "s"),
         value,
-      });
+      })
 
       // Shift the queue if we have more items we can show
-      let currentAreaWidth =
+      const currentAreaWidth =
           dataQueue.length
         * distanceBetweenTwoPointsInChart
-        - distanceBetweenTwoPointsInChart;
+        - distanceBetweenTwoPointsInChart
       if (currentAreaWidth > maxAllowedAreaWidth) {
-        dataQueue.shift();
+        dataQueue.shift()
       }
 
       this.setState({
-        dataQueue
-      });
+        dataQueue,
+      })
 
       setTimeout(() => {
-        window.requestAnimationFrame(render);
-      }, 80);
+        window.requestAnimationFrame(render)
+      }, 80)
     }
-    window.requestAnimationFrame(render);
+    window.requestAnimationFrame(render)
+  }
+
+  componentDidMount() {
+    window.addEventListener("resize",
+                            this.updateViewportDimensions.bind(this))
+    window.addEventListener("orientationchange",
+                            this.updateViewportDimensions.bind(this))
   }
 
   updateViewportDimensions() {
-    const chartWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    let chartHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    const chartWidth = Math.max(
+      document.documentElement.clientWidth,
+      window.innerWidth || 0)
+    const chartHeight = Math.max(
+      document.documentElement.clientHeight,
+      window.innerHeight || 0)
 
     this.setState({
       chartWidth,
       chartHeight,
       distanceBetweenTwoPointsInChart: 5,
       maxAllowedAreaWidth: chartWidth / 2,
-      maxAllowedAreaHeight: chartHeight > 300 ? chartHeight / 2 : chartHeight * 0.8,
-    });
-  }
-
-  componentDidMount() {
-    window.addEventListener('resize',
-                            this.updateViewportDimensions.bind(this));
-    window.addEventListener('orientationchange',
-                            this.updateViewportDimensions.bind(this));
+      maxAllowedAreaHeight: chartHeight > 300
+        ? chartHeight / 2
+        : chartHeight * 0.8,
+    })
   }
 
   render() {
@@ -102,7 +114,7 @@ class App extends Component {
       distanceBetweenTwoPointsInChart,
       maxAllowedAreaWidth,
       maxAllowedAreaHeight,
-    } = this.state;
+    } = this.state
 
     const graphProps = {
       data: dataQueue,
@@ -113,14 +125,14 @@ class App extends Component {
       maxAllowedAreaHeight,
       xAccessor: (d) => d.time,
       yAccessor: (d) => d.value,
-    };
+    }
 
     return (
       <div className="App">
-        <AreaChart {...graphProps} />
+        <AreaChart { ...graphProps } />
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
