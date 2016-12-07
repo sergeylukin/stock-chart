@@ -19,9 +19,9 @@ const {
 export default class AreaChart extends Component {
 
   static propTypes = {
-    areaPath: PropTypes.object.isRequired,
-    linePath: PropTypes.object.isRequired,
-    circlePath: PropTypes.object.isRequired,
+    areaPath: PropTypes.any.isRequired,
+    linePath: PropTypes.any.isRequired,
+    circlePath: PropTypes.any.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     maxAllowedAreaHeight: PropTypes.number.isRequired,
@@ -54,19 +54,21 @@ export default class AreaChart extends Component {
       circlePath: nextProps.circlePath,
     })
 
-    const render = (start = null) => {
+    const animate = (start = null) => {
       requestAnimationFrame((timestamp) => {
         if (!start) start = timestamp
         const delta = (timestamp - start) / 500
         if (delta > 1) return
-        this.state.areaPath.tween(delta)
-        this.state.linePath.tween(delta)
-        this.state.circlePath.tween(delta)
-        this.setState(this.state)
-        render(start)
+        if (typeof this.state.areaPath.tween === "function") {
+          this.state.areaPath.tween(delta)
+          this.state.linePath.tween(delta)
+          this.state.circlePath.tween(delta)
+          this.setState(this.state)
+        }
+        animate(start)
       })
     }
-    render()
+    animate()
   }
 
   handleMouseEnter() {

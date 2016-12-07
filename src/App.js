@@ -119,7 +119,8 @@ class App extends Component {
       - distanceBetweenTwoPointsInChart
     if (currentAreaWidth > maxAllowedAreaWidth) {
       linePath = linePath
-        .replace(/([ML])([^,]+)/g, (match, cmd, x) => `${cmd}${(x - 50)}`)
+        .replace(/([ML])([^,]+)/g, (match, cmd, x) => `${cmd}
+          ${(x - distanceBetweenTwoPoints)}`)
       dataQueue.shift()
     }
 
@@ -172,6 +173,7 @@ class App extends Component {
       prevCircleX = parseInt(prevLastCoordinate[1], 10)
       prevCircleY = parseInt(prevLastCoordinate[2], 10)
     }
+
     const lastCoordinate = linePath.match(/[ML]([^,]+),([^,]+)$/)
     let circleX = 0
     let circleY = 0
@@ -214,12 +216,66 @@ class App extends Component {
       document.documentElement.clientHeight,
       window.innerHeight || 0)
 
+    const maxAllowedAreaWidth = chartWidth / 2
+    const maxAllowedAreaHeight = chartHeight
+
+    const xAccessor = (d) => d.time
+    const yAccessor = (d) => d.value
+
+    const linePath = createLine({
+      data: this.state.dataQueue,
+      width: chartWidth,
+      distanceBetweenTwoPoints: this.state.distanceBetweenTwoPointsInChart,
+      maxAllowedAreaWidth: maxAllowedAreaWidth,
+      maxAllowedAreaHeight: maxAllowedAreaHeight,
+      xAccessor,
+      yAccessor,
+    })
+
+    let areaPath
+    if (this.state.dataQueue.length > 1) {
+      let lastTickXCoordinate = 0
+      let lastTickYCoordinate = 0
+
+      const lastTickCoordinates = linePath.match(/L([^,]+),([^,]+)$/)
+      if (lastTickCoordinates) {
+        lastTickXCoordinate = lastTickCoordinates[1]
+        lastTickYCoordinate = lastTickCoordinates[2]
+      }
+
+      areaPath =
+          `M${lastTickXCoordinate},${lastTickYCoordinate}
+           L${lastTickXCoordinate},1000
+           L0,1000
+           L${linePath.substr(1)}`
+    }
+    else {
+      areaPath = linePath
+    }
+
+    const lastCoordinate = linePath.match(/[ML]([^,]+),([^,]+)$/)
+    let circleX = 0
+    let circleY = 0
+    if (lastCoordinate) {
+      circleX = parseInt(lastCoordinate[1], 10)
+      circleY = parseInt(lastCoordinate[2], 10)
+    }
+
+    const circlePath = createCircle({
+      x: circleX,
+      y: circleY,
+      size: 5,
+    })
+
     this.setState({
+      areaPath,
+      linePath,
+      circlePath,
       chartWidth,
       chartHeight,
-      distanceBetweenTwoPointsInChart: 50,
-      maxAllowedAreaWidth: chartWidth / 2,
-      maxAllowedAreaHeight: chartHeight,
+      distanceBetweenTwoPointsInChart: maxAllowedAreaWidth * 10 / 100,
+      maxAllowedAreaWidth,
+      maxAllowedAreaHeight,
     })
   }
 
