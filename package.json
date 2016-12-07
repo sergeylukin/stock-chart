@@ -54,6 +54,7 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "art": "https://registry.npmjs.org/art/-/art-0.10.1.tgz",
     "d3-array": "^1.0.1",
     "d3-scale": "^1.0.3",
     "d3-shape": "^1.0.3",
@@ -97,6 +98,7 @@
       "flowtype"
     ],
     "rules": {
+      "no-debugger": "warn",
       "flowtype/define-flow-type": 2,
       "flowtype/use-flow-type": 2
     }

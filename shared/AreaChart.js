@@ -10,13 +10,6 @@ import ReactART from "ReactNativeART"
    import/no-extraneous-dependencies,
    import/no-unresolved */
 
-import {
-  createCircle,
-  createArea,
-  createLine,
-  getCoordinatesOfLastItem,
-} from "./chart-util"
-
 const {
   Group,
   Shape,
@@ -26,29 +19,54 @@ const {
 export default class AreaChart extends Component {
 
   static propTypes = {
-    data: PropTypes.array.isRequired,
+    areaPath: PropTypes.object.isRequired,
+    linePath: PropTypes.object.isRequired,
+    circlePath: PropTypes.object.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    distanceBetweenTwoPoints: PropTypes.number.isRequired,
-    maxAllowedAreaWidth: PropTypes.number.isRequired,
     maxAllowedAreaHeight: PropTypes.number.isRequired,
-    xAccessor: PropTypes.func.isRequired,
-    yAccessor: PropTypes.func.isRequired,
     className: PropTypes.string,
   }
 
   static defaultProps = {
     width: 300,
     height: 300,
-    distanceBetweenTwoPoints: 50,
-    maxAllowedAreaWidth: 150,
+  }
+
+  state = {
+    isMouseInside: false,
+    prevAreaPath: "",
+    areaPath: {},
+    linePath: {},
+    circlePath: {},
   }
 
   constructor(props) {
     super(props)
-    this.state = { isMouseInside: false }
     this.handleMouseEnter = this.handleMouseEnter.bind(this)
     this.handleMouseLeave = this.handleMouseLeave.bind(this)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      areaPath: nextProps.areaPath,
+      linePath: nextProps.linePath,
+      circlePath: nextProps.circlePath,
+    })
+
+    const render = (start = null) => {
+      requestAnimationFrame((timestamp) => {
+        if (!start) start = timestamp
+        const delta = (timestamp - start) / 500
+        if (delta > 1) return
+        this.state.areaPath.tween(delta)
+        this.state.linePath.tween(delta)
+        this.state.circlePath.tween(delta)
+        this.setState(this.state)
+        render(start)
+      })
+    }
+    render()
   }
 
   handleMouseEnter() {
@@ -60,57 +78,17 @@ export default class AreaChart extends Component {
 
   render() {
     const {
-      data,
       width,
       height,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
       maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
       className,
     } = this.props
 
-    if (data.length === 0) {
-      return <Surface />
-    }
-
-    const areaPath = createArea({
-      data,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
-
-    const linePath = createLine({
-      data,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
-
     const {
-      x: circleX,
-      y: circleY,
-    } = getCoordinatesOfLastItem({
-      data,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
-
-    const circlePath = createCircle({
-      size: 128,
-    })
+      areaPath,
+      linePath,
+      circlePath,
+    } = this.state
 
     const yOffset = height - maxAllowedAreaHeight
 
@@ -137,9 +115,7 @@ export default class AreaChart extends Component {
             stroke={ "#fff" }
             strokeWidth={ 2 }
           />
-          <Group x={ circleX } y={ circleY }>
-            <Shape d={ circlePath } fill={ "orange" } />
-          </Group>
+          <Shape d={ circlePath } fill={ "orange" } />
         </Group>
       </Surface>
     )

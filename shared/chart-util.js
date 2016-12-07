@@ -36,14 +36,18 @@ export function createArea({
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }:SvgPathFuncArgsType): string {
+  if (data.length === 0) {
+    return ""
+  }
+
   const lastDatum = data[data.length - 1]
 
-  let totalWidth =
+  const totalWidth =
       data.length
     * distanceBetweenTwoPoints
     - distanceBetweenTwoPoints
   if (totalWidth > maxAllowedAreaWidth) {
-    totalWidth = maxAllowedAreaWidth
+    // totalWidth = maxAllowedAreaWidth
   }
 
   const scaleX = createScaleX(
@@ -81,14 +85,18 @@ export function createLine({
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }:SvgPathFuncArgsType): string {
+  if (data.length === 0) {
+    return ""
+  }
+
   const lastDatum = data[data.length - 1]
 
-  let totalWidth =
+  const totalWidth =
       data.length
     * distanceBetweenTwoPoints
     - distanceBetweenTwoPoints
   if (totalWidth > maxAllowedAreaWidth) {
-    totalWidth = maxAllowedAreaWidth
+    // totalWidth = maxAllowedAreaWidth
   }
 
   const scaleX = createScaleX(
@@ -124,14 +132,18 @@ export function getCoordinatesOfLastItem({
   maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }:SvgPathFuncArgsType): { x: number, y: number } {
+  if (data.length === 0) {
+    return { x: 0, y: 0 }
+  }
+
   const lastDatum = data[data.length - 1]
 
-  let totalWidth =
+  const totalWidth =
       data.length
     * distanceBetweenTwoPoints
     - distanceBetweenTwoPoints
   if (totalWidth > maxAllowedAreaWidth) {
-    totalWidth = maxAllowedAreaWidth
+    // totalWidth = maxAllowedAreaWidth
   }
 
   const scaleX = createScaleX(
@@ -160,13 +172,20 @@ export function getCoordinatesOfLastItem({
  * React Native application with ART.
  */
 type CreateCircleArgsType = {
+  x: number,
+  y: number,
   size: number,
 }
 export function createCircle({
+  x,
+  y,
   size,
-}:CreateCircleArgsType = { size: 30 }): string {
-  return d3.shape.symbol()
-    .size(size)()
+}:CreateCircleArgsType = { x: 0, y: 0, size: 30 }): string {
+  return [
+    `M${(x - size)},${y}`,
+    `A ${size} ${size} 0 0 1 ` + (x + size) + " " + y,
+    `A ${size} ${size} 0 0 1 ` + (x - size) + " " + y,
+  ].join(" ")
 }
 
 /**
