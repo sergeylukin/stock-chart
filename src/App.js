@@ -186,17 +186,23 @@ class App extends Component {
       size: 5,
     })
 
-    const circlePath = createCircle({
+    let circlePath = createCircle({
       x: circleX,
       y: circleY,
       size: 5,
     })
 
+    if (dataQueue.length > 1) {
+      linePath = Morph.Tween(prevLinePath, linePath)
+      areaPath = Morph.Tween(prevAreaPath, areaPath)
+      circlePath = Morph.Tween(prevCirclePath, circlePath)
+    }
+
     this.setState({
       dataQueue,
-      areaPath: Morph.Tween(prevAreaPath, areaPath),
-      linePath: Morph.Tween(prevLinePath, linePath),
-      circlePath: Morph.Tween(prevCirclePath, circlePath),
+      areaPath,
+      linePath,
+      circlePath,
     })
   }
 
@@ -213,9 +219,7 @@ class App extends Component {
       chartHeight,
       distanceBetweenTwoPointsInChart: 50,
       maxAllowedAreaWidth: chartWidth / 2,
-      maxAllowedAreaHeight: chartHeight > 300
-        ? chartHeight / 2
-        : chartHeight * 0.8,
+      maxAllowedAreaHeight: chartHeight,
     })
   }
 
@@ -246,7 +250,10 @@ class App extends Component {
 
     return (
       <div className="App">
-        <button onClick={ this.handleAddPointButtonClick }>
+        <button
+          onClick={ this.handleAddPointButtonClick }
+          style={{ position: "fixed" }}
+        >
           { "Add point" }
         </button>
 

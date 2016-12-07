@@ -20,7 +20,6 @@ type SvgPathFuncArgsType = {
   xAccessor: Function,
   yAccessor: Function,
   distanceBetweenTwoPoints: number,
-  maxAllowedAreaWidth: number,
   maxAllowedAreaHeight: number,
 }
 
@@ -33,7 +32,6 @@ export function createArea({
   xAccessor,
   yAccessor,
   distanceBetweenTwoPoints,
-  maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }:SvgPathFuncArgsType): string {
   if (data.length === 0) {
@@ -46,9 +44,6 @@ export function createArea({
       data.length
     * distanceBetweenTwoPoints
     - distanceBetweenTwoPoints
-  if (totalWidth > maxAllowedAreaWidth) {
-    // totalWidth = maxAllowedAreaWidth
-  }
 
   const scaleX = createScaleX(
     data[0].time,
@@ -82,7 +77,6 @@ export function createLine({
   xAccessor,
   yAccessor,
   distanceBetweenTwoPoints,
-  maxAllowedAreaWidth,
   maxAllowedAreaHeight,
 }:SvgPathFuncArgsType): string {
   if (data.length === 0) {
@@ -95,9 +89,6 @@ export function createLine({
       data.length
     * distanceBetweenTwoPoints
     - distanceBetweenTwoPoints
-  if (totalWidth > maxAllowedAreaWidth) {
-    // totalWidth = maxAllowedAreaWidth
-  }
 
   const scaleX = createScaleX(
     data[0].time,
@@ -105,14 +96,17 @@ export function createLine({
     totalWidth,
   )
 
-  // Collect all y values.
-  const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum))
-    return all
-  }, [])
+  const lastValue = lastDatum.value * 1
+
   // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues)
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
+  const extentY = d3Array.extent(data, yAccessor)
+  let deviation = calcYValueDeviation(extentY[0], extentY[1], lastValue)
+  if (deviation === 0) {
+    deviation = lastValue
+  }
+  const minYValue = (lastValue - deviation).toFixed(6)
+  const maxYValue = (lastValue + deviation).toFixed(6)
+  const scaleY = createScaleY(minYValue, maxYValue, maxAllowedAreaHeight)
 
   const areaShape = d3.shape.line()
     .x((d) => scaleX(xAccessor(d)))
@@ -121,50 +115,15 @@ export function createLine({
   return areaShape(data)
 }
 
-/**
- * Get coordinates of last data point
- */
-export function getCoordinatesOfLastItem({
-  data,
-  xAccessor,
-  yAccessor,
-  distanceBetweenTwoPoints,
-  maxAllowedAreaWidth,
-  maxAllowedAreaHeight,
-}:SvgPathFuncArgsType): { x: number, y: number } {
-  if (data.length === 0) {
-    return { x: 0, y: 0 }
-  }
-
-  const lastDatum = data[data.length - 1]
-
-  const totalWidth =
-      data.length
-    * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints
-  if (totalWidth > maxAllowedAreaWidth) {
-    // totalWidth = maxAllowedAreaWidth
-  }
-
-  const scaleX = createScaleX(
-    data[0].time,
-    lastDatum.time,
-    totalWidth,
+// This function should calculate the so called "price deviation", which is
+// the intended size (in pips) from the current price to the vertical edges
+// of the window.
+function calcYValueDeviation(minValue, maxValue, lastValue) {
+  const padding = 1.25
+  return parseFloat(
+    (Math.max(maxValue - lastValue, lastValue - minValue) * padding)
+      .toFixed(6)
   )
-
-  // Collect all y values.
-  const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum))
-    return all
-  }, [])
-  // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues)
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
-
-  return {
-    x: scaleX(xAccessor(lastDatum)),
-    y: scaleY(yAccessor(lastDatum)),
-  }
 }
 
 /**
@@ -202,7 +161,7 @@ function createScaleX(start, end, width) {
  */
 function createScaleY(minY, maxY, height) {
   return d3.scale.scaleLinear()
-    .domain([ minY, maxY ]).nice()
+    .domain([ minY, maxY ])
     // We invert our range so it outputs using the axis that React uses.
     .range([ height, 0 ])
 }
