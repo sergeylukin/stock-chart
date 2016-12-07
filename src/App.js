@@ -6,9 +6,7 @@ import Morph from "art/morph/path"
 
 import {
   createCircle,
-  // createArea,
   createLine,
-  getCoordinatesOfLastItem,
 } from "../shared/chart-util"
 import "./App.css"
 import AreaChart from "../shared/AreaChart"
@@ -167,31 +165,20 @@ class App extends Component {
       areaPath = linePath
     }
 
-    const {
-      x: prevCircleX,
-      y: prevCircleY,
-    } = getCoordinatesOfLastItem({
-      data: prevDataQueue,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
-
-    const {
-      x: circleX,
-      y: circleY,
-    } = getCoordinatesOfLastItem({
-      data: dataQueue,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
+    const prevLastCoordinate = prevLinePath.match(/[ML]([^,]+),([^,]+)$/)
+    let prevCircleX = 0
+    let prevCircleY = 0
+    if (prevLastCoordinate) {
+      prevCircleX = parseInt(prevLastCoordinate[1], 10)
+      prevCircleY = parseInt(prevLastCoordinate[2], 10)
+    }
+    const lastCoordinate = linePath.match(/[ML]([^,]+),([^,]+)$/)
+    let circleX = 0
+    let circleY = 0
+    if (lastCoordinate) {
+      circleX = parseInt(lastCoordinate[1], 10)
+      circleY = parseInt(lastCoordinate[2], 10)
+    }
 
     const prevCirclePath = createCircle({
       x: prevCircleX,
