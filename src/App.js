@@ -6,9 +6,7 @@ import Morph from "art/morph/path"
 
 import {
   createCircle,
-  // createArea,
   createLine,
-  getCoordinatesOfLastItem,
 } from "../shared/chart-util"
 import "./App.css"
 import AreaChart from "../shared/AreaChart"
@@ -30,9 +28,6 @@ class App extends Component {
     dataQueue: [],
     chartWidth: 0,
     chartHeight: 0,
-    distanceBetweenTwoPointsInChart: 0,
-    maxAllowedAreaWidth: 0,
-    maxAllowedAreaHeight: 0,
   }
 
   constructor(props: Object) {
@@ -55,18 +50,22 @@ class App extends Component {
     const {
       dataQueue,
       chartWidth,
-      distanceBetweenTwoPointsInChart,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
+      chartHeight,
     } = this.state
 
     const width = chartWidth
-    const distanceBetweenTwoPoints = distanceBetweenTwoPointsInChart
+    const height = chartHeight
 
     const xAccessor = (d) => d.time
     const yAccessor = (d) => d.value
 
-    const prevDataQueue = [ ...dataQueue ]
+    const prevLinePath = createLine({
+      data: dataQueue,
+      width,
+      height,
+      xAccessor,
+      yAccessor,
+    })
 
     let lastTimestamp
     let lastYValue
@@ -88,40 +87,44 @@ class App extends Component {
       value = 10
     }
 
+    const sec = Math.floor(Math.random() * 5) + 1
     dataQueue.push({
-      time: +moment(lastTimestamp).add(1, "s"),
+      time: +moment(lastTimestamp).add(sec, "s"),
       value,
-    })
-
-    const prevLinePath = createLine({
-      data: prevDataQueue,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
     })
 
     let linePath = createLine({
       data: dataQueue,
       width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
+      height,
       xAccessor,
       yAccessor,
     })
 
-    // const prevLinePath = linePath.replace(/L[^,]+,[^,]+$/, "")
+    console.log("PREV LINE PATH: ", prevLinePath)
+    console.log("LINE PATH: ", linePath)
 
-    const currentAreaWidth =
-        dataQueue.length
-      * distanceBetweenTwoPointsInChart
-      - distanceBetweenTwoPointsInChart
-    if (currentAreaWidth > maxAllowedAreaWidth) {
+    // M0,0L10,10L30,30L40.07,92.4L50.07,81.8
+
+    if (dataQueue.length > 10) {
+      const last2Ticks = linePath.match(/L([^,]+),([^,L]+)L([^,]+),([^,]+)$/)
+      const prelastTickX = last2Ticks[1]
+      const lastTickX = last2Ticks[3]
+      const distanceBetweenLast2Ticks = lastTickX - prelastTickX
+      console.log("distanceBetweenLast2Ticks", distanceBetweenLast2Ticks)
+
+      linePath = createLine({
+        data: dataQueue,
+        width: width + distanceBetweenLast2Ticks,
+        height,
+        xAccessor,
+        yAccessor,
+      })
+
       linePath = linePath
-        .replace(/([ML])([^,]+)/g, (match, cmd, x) => `${cmd}${(x - 50)}`)
+        .replace(/([ML])([^,]+)/g, (match, cmd, x) => (
+          `${cmd}${(x - distanceBetweenLast2Ticks)}`
+        ))
       dataQueue.shift()
     }
 
@@ -167,31 +170,21 @@ class App extends Component {
       areaPath = linePath
     }
 
-    const {
-      x: prevCircleX,
-      y: prevCircleY,
-    } = getCoordinatesOfLastItem({
-      data: prevDataQueue,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
+    const prevLastCoordinate = prevLinePath.match(/[ML]([^,]+),([^,]+)$/)
+    let prevCircleX = 0
+    let prevCircleY = 0
+    if (prevLastCoordinate) {
+      prevCircleX = parseInt(prevLastCoordinate[1], 10)
+      prevCircleY = parseInt(prevLastCoordinate[2], 10)
+    }
 
-    const {
-      x: circleX,
-      y: circleY,
-    } = getCoordinatesOfLastItem({
-      data: dataQueue,
-      width,
-      distanceBetweenTwoPoints,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
-      xAccessor,
-      yAccessor,
-    })
+    const lastCoordinate = linePath.match(/[ML]([^,]+),([^,]+)$/)
+    let circleX = 0
+    let circleY = 0
+    if (lastCoordinate) {
+      circleX = parseInt(lastCoordinate[1], 10)
+      circleY = parseInt(lastCoordinate[2], 10)
+    }
 
     const prevCirclePath = createCircle({
       x: prevCircleX,
@@ -214,21 +207,18 @@ class App extends Component {
   }
 
   updateViewportDimensions() {
-    const chartWidth = Math.max(
+    const viewportWidth = Math.max(
       document.documentElement.clientWidth,
       window.innerWidth || 0)
-    const chartHeight = Math.max(
+    const viewportHeight = Math.max(
       document.documentElement.clientHeight,
       window.innerHeight || 0)
 
     this.setState({
-      chartWidth,
-      chartHeight,
-      distanceBetweenTwoPointsInChart: 50,
-      maxAllowedAreaWidth: chartWidth / 2,
-      maxAllowedAreaHeight: chartHeight > 300
-        ? chartHeight / 2
-        : chartHeight * 0.8,
+      chartWidth: viewportWidth / 2,
+      chartHeight: viewportHeight > 300
+        ? viewportHeight / 2
+        : viewportHeight * 0.8,
     })
   }
 
@@ -239,9 +229,6 @@ class App extends Component {
       circlePath,
       chartWidth,
       chartHeight,
-      distanceBetweenTwoPointsInChart,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
     } = this.state
 
     const graphProps = {
@@ -250,9 +237,6 @@ class App extends Component {
       circlePath,
       width: chartWidth,
       height: chartHeight,
-      distanceBetweenTwoPoints: distanceBetweenTwoPointsInChart,
-      maxAllowedAreaWidth,
-      maxAllowedAreaHeight,
       xAccessor: (d) => d.time,
       yAccessor: (d) => d.value,
     }

@@ -19,12 +19,11 @@ const {
 export default class AreaChart extends Component {
 
   static propTypes = {
-    areaPath: PropTypes.object.isRequired,
-    linePath: PropTypes.object.isRequired,
-    circlePath: PropTypes.object.isRequired,
+    areaPath: PropTypes.any.isRequired,
+    linePath: PropTypes.any.isRequired,
+    circlePath: PropTypes.any.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    maxAllowedAreaHeight: PropTypes.number.isRequired,
     className: PropTypes.string,
   }
 
@@ -80,7 +79,6 @@ export default class AreaChart extends Component {
     const {
       width,
       height,
-      maxAllowedAreaHeight,
       className,
     } = this.props
 
@@ -90,7 +88,7 @@ export default class AreaChart extends Component {
       circlePath,
     } = this.state
 
-    const yOffset = height - maxAllowedAreaHeight
+    const yOffset = 0
 
     const fillColor = this.state.isMouseInside
       ? "rgba(0, 0, 0, .5)"

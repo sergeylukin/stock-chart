@@ -17,60 +17,10 @@ type SvgPathFuncArgsType = {
     time: number,
     value: number
   }[],
+  width: number,
+  height: number,
   xAccessor: Function,
   yAccessor: Function,
-  distanceBetweenTwoPoints: number,
-  maxAllowedAreaWidth: number,
-  maxAllowedAreaHeight: number,
-}
-
-/**
- * Creates a area graph SVG path that we can then use to render in our
- * React Native application with ART.
- */
-export function createArea({
-  data,
-  xAccessor,
-  yAccessor,
-  distanceBetweenTwoPoints,
-  maxAllowedAreaWidth,
-  maxAllowedAreaHeight,
-}:SvgPathFuncArgsType): string {
-  if (data.length === 0) {
-    return ""
-  }
-
-  const lastDatum = data[data.length - 1]
-
-  const totalWidth =
-      data.length
-    * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints
-  if (totalWidth > maxAllowedAreaWidth) {
-    // totalWidth = maxAllowedAreaWidth
-  }
-
-  const scaleX = createScaleX(
-    data[0].time,
-    lastDatum.time,
-    totalWidth,
-  )
-
-  // Collect all y values.
-  const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum))
-    return all
-  }, [])
-  // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues)
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
-
-  const areaShape = d3.shape.area()
-    .x((d) => scaleX(xAccessor(d)))
-    .y0(maxAllowedAreaHeight)
-    .y1((d) => scaleY(yAccessor(d)))
-
-  return areaShape(data)
 }
 
 /**
@@ -79,11 +29,10 @@ export function createArea({
  */
 export function createLine({
   data,
+  width,
+  height,
   xAccessor,
   yAccessor,
-  distanceBetweenTwoPoints,
-  maxAllowedAreaWidth,
-  maxAllowedAreaHeight,
 }:SvgPathFuncArgsType): string {
   if (data.length === 0) {
     return ""
@@ -91,18 +40,10 @@ export function createLine({
 
   const lastDatum = data[data.length - 1]
 
-  const totalWidth =
-      data.length
-    * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints
-  if (totalWidth > maxAllowedAreaWidth) {
-    // totalWidth = maxAllowedAreaWidth
-  }
-
   const scaleX = createScaleX(
     data[0].time,
     lastDatum.time,
-    totalWidth,
+    width
   )
 
   // Collect all y values.
@@ -112,59 +53,13 @@ export function createLine({
   }, [])
   // Get the min and max y value.
   const extentY = d3Array.extent(allYValues)
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
+  const scaleY = createScaleY(0, extentY[1], height)
 
   const areaShape = d3.shape.line()
     .x((d) => scaleX(xAccessor(d)))
     .y((d) => scaleY(yAccessor(d)))
 
   return areaShape(data)
-}
-
-/**
- * Get coordinates of last data point
- */
-export function getCoordinatesOfLastItem({
-  data,
-  xAccessor,
-  yAccessor,
-  distanceBetweenTwoPoints,
-  maxAllowedAreaWidth,
-  maxAllowedAreaHeight,
-}:SvgPathFuncArgsType): { x: number, y: number } {
-  if (data.length === 0) {
-    return { x: 0, y: 0 }
-  }
-
-  const lastDatum = data[data.length - 1]
-
-  const totalWidth =
-      data.length
-    * distanceBetweenTwoPoints
-    - distanceBetweenTwoPoints
-  if (totalWidth > maxAllowedAreaWidth) {
-    // totalWidth = maxAllowedAreaWidth
-  }
-
-  const scaleX = createScaleX(
-    data[0].time,
-    lastDatum.time,
-    totalWidth,
-  )
-
-  // Collect all y values.
-  const allYValues = data.reduce((all, datum) => {
-    all.push(yAccessor(datum))
-    return all
-  }, [])
-  // Get the min and max y value.
-  const extentY = d3Array.extent(allYValues)
-  const scaleY = createScaleY(0, extentY[1], maxAllowedAreaHeight)
-
-  return {
-    x: scaleX(xAccessor(lastDatum)),
-    y: scaleY(yAccessor(lastDatum)),
-  }
 }
 
 /**
