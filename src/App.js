@@ -91,6 +91,8 @@ class App extends Component {
       value,
     })
 
+    console.log(dataQueue)
+
     const prevLinePath = createLine({
       data: prevDataQueue,
       width,
@@ -216,7 +218,7 @@ class App extends Component {
       document.documentElement.clientHeight,
       window.innerHeight || 0)
 
-    const maxAllowedAreaWidth = chartWidth / 2
+    const maxAllowedAreaWidth = chartWidth / 1
     const maxAllowedAreaHeight = chartHeight
 
     const xAccessor = (d) => d.time
@@ -273,7 +275,7 @@ class App extends Component {
       circlePath,
       chartWidth,
       chartHeight,
-      distanceBetweenTwoPointsInChart: maxAllowedAreaWidth * 10 / 100,
+      distanceBetweenTwoPointsInChart: maxAllowedAreaWidth * 5 / 100,
       maxAllowedAreaWidth,
       maxAllowedAreaHeight,
     })
